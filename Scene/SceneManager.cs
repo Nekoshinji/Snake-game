@@ -20,9 +20,4 @@ public class SceneManager
     {
         currentScene?.Draw();
     }
-
-    internal void ChangeScene(object game)
-    {
-        throw new NotImplementedException();
-    }
 }

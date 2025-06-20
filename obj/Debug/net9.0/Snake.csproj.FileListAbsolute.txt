@@ -20,3 +20,4 @@ C:\Users\Seb&Aurel\Desktop\Formation gaming campus\Projet 2\Snake\obj\Debug\net9
 C:\Users\Seb&Aurel\Desktop\Formation gaming campus\Projet 2\Snake\obj\Debug\net9.0\Snake.pdb
 C:\Users\Seb&Aurel\Desktop\Formation gaming campus\Projet 2\Snake\obj\Debug\net9.0\Snake.genruntimeconfig.cache
 C:\Users\Seb&Aurel\Desktop\Formation gaming campus\Projet 2\Snake\obj\Debug\net9.0\ref\Snake.dll
+C:\Users\Seb&Aurel\Desktop\Formation gaming campus\Projet 2\Snake\obj\Debug\net9.0\Snake.sourcelink.json

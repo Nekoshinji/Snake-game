@@ -1,13 +1,19 @@
-using Snake.Scene;
+public interface IScene
+{
+    void OnEnter();
+    void OnExit();
+    void Update();
+    void Draw();
+}
 
 public class SceneManager
 {
-    private Snake.Scene.IScene? currentScene;
+    private IScene? currentScene;
 
     public void ChangeScene(IScene newScene)
     {
         currentScene?.OnExit();
-        currentScene = (Snake.Scene.IScene)newScene;
+        currentScene = newScene;
         currentScene.OnEnter();
     }
 
@@ -19,10 +25,5 @@ public class SceneManager
     public void Draw()
     {
         currentScene?.Draw();
-    }
-
-    internal void ChangeScene(object game)
-    {
-        throw new NotImplementedException();
     }
 }

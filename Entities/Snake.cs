@@ -1,10 +1,10 @@
 using Raylib_cs;
+using static Raylib_cs.Raylib;
 
-using System.Numerics;
-using System.Collections.Generic;
 
 public class GameSnake
 {
+    public int Score { get; set; }
     public List<Coordinates> Body { get; private set; }
     public Coordinates Direction { get; set; }
 
@@ -40,21 +40,16 @@ public class GameSnake
         return false;
     }
 
-    internal void Restart()
-    {
-        throw new NotImplementedException();
-    }
-
     public void Draw()
     {
-        int cellSize = 40; // adapte à ta grille
+        int cellSize = 40;
 
         // Corps (du plus foncé au plus clair)
         for (int i = Body.Count - 1; i > 0; i--)
         {
             var part = Body[i];
             Color bodyColor = (i % 2 == 0) ? Color.DarkGreen : Color.Green;
-            Raylib.DrawRectangleRounded(
+            DrawRectangleRounded(
                 new Rectangle(part.Column * cellSize, part.Row * cellSize, cellSize, cellSize),
                 0.5f, 6, bodyColor
             );
@@ -62,7 +57,7 @@ public class GameSnake
 
         // Tête (plus claire et arrondie)
         var head = Body[0];
-        Raylib.DrawRectangleRounded(
+        DrawRectangleRounded(
             new Rectangle(head.Column * cellSize, head.Row * cellSize, cellSize, cellSize),
             0.8f, 8, Color.Lime
         );
@@ -76,28 +71,28 @@ public class GameSnake
         int eye2X = head.Column * cellSize + cellSize - offsetX - eyeRadius * 2;
         int eyeY = head.Row * cellSize + offsetY;
 
-        Raylib.DrawCircle(eye1X, eyeY, eyeRadius, Color.White);
-        Raylib.DrawCircle(eye2X, eyeY, eyeRadius, Color.White);
-        Raylib.DrawCircle(eye1X, eyeY, eyeRadius / 2, Color.Black);
-        Raylib.DrawCircle(eye2X, eyeY, eyeRadius / 2, Color.Black);
+        DrawCircle(eye1X, eyeY, eyeRadius, Color.White);
+        DrawCircle(eye2X, eyeY, eyeRadius, Color.White);
+        DrawCircle(eye1X, eyeY, eyeRadius / 2, Color.Black);
+        DrawCircle(eye2X, eyeY, eyeRadius / 2, Color.Black);
     }
 
     // Ajoutez ici les propriétés et méthodes de GameSnake
 
-    public void Draw(int cellSize)
+    public void Draw(int cellSize, int offsetX = 0, int offsetY = 0)
     {
         // Dégradé du corps (du foncé à la tête)
         for (int i = Body.Count - 1; i > 0; i--)
         {
             var part = Body[i];
             float t = (float)i / Body.Count;
-            Color bodyColor = Raylib.ColorLerp(Color.DarkGreen, Color.Lime, 1 - t);
+            Color bodyColor = ColorLerp(Color.DarkGreen, Color.Lime, 1 - t);
 
             // Segments allongés
-            Raylib.DrawRectangleRounded(
+            DrawRectangleRounded(
                 new Rectangle(
-                    part.Column * cellSize + cellSize * 0.15f,
-                    part.Row * cellSize + cellSize * 0.25f,
+                    offsetX + part.Column * cellSize + cellSize * 0.15f,
+                    offsetY + part.Row * cellSize + cellSize * 0.25f,
                     cellSize * 0.7f,
                     cellSize * 0.5f
                 ),
@@ -107,10 +102,10 @@ public class GameSnake
 
         // Tête (plus large, arrondie, couleur vive)
         var head = Body[0];
-        Raylib.DrawRectangleRounded(
+        DrawRectangleRounded(
             new Rectangle(
-                head.Column * cellSize + cellSize * 0.05f,
-                head.Row * cellSize + cellSize * 0.1f,
+                offsetX + head.Column * cellSize + cellSize * 0.05f,
+                offsetY + head.Row * cellSize + cellSize * 0.1f,
                 cellSize * 0.9f,
                 cellSize * 0.8f
             ),
@@ -124,16 +119,16 @@ public class GameSnake
         int eyeY = (int)(head.Row * cellSize + cellSize * 0.3f);
         int eye1X = (int)(head.Column * cellSize + cellSize * 0.4f);
         int eye2X = (int)(head.Column * cellSize + cellSize * 0.6f);
-        Raylib.DrawCircle(eye1X, eyeY, eyeRadius, Color.White);
-        Raylib.DrawCircle(eye2X, eyeY, eyeRadius, Color.White);
-        Raylib.DrawCircle(eye1X, eyeY, eyeRadius / 2, Color.Black);
-        Raylib.DrawCircle(eye2X, eyeY, eyeRadius / 2, Color.Black);
+        DrawCircle(eye1X, eyeY, eyeRadius, Color.White);
+        DrawCircle(eye2X, eyeY, eyeRadius, Color.White);
+        DrawCircle(eye1X, eyeY, eyeRadius / 2, Color.Black);
+        DrawCircle(eye2X, eyeY, eyeRadius / 2, Color.Black);
 
-        // Langue en V (optionnel)
+        // Langue en V
         int tongueX = (int)(head.Column * cellSize + cellSize * 0.5f);
         int tongueY = (int)(head.Row * cellSize + cellSize * 0.95f);
-        Raylib.DrawLine(tongueX, tongueY, tongueX - eyeRadius, tongueY + eyeRadius * 2, Color.Red);
-        Raylib.DrawLine(tongueX, tongueY, tongueX + eyeRadius, tongueY + eyeRadius * 2, Color.Red);
+        DrawLine(tongueX, tongueY, tongueX - eyeRadius, tongueY + eyeRadius * 2, Color.Red);
+        DrawLine(tongueX, tongueY, tongueX + eyeRadius, tongueY + eyeRadius * 2, Color.Red);
     }
 }
 

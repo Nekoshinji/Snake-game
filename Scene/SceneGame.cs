@@ -1,66 +1,80 @@
-
 using Raylib_cs;
 using static Raylib_cs.Raylib;
 
-// Add the necessary using directives for your project types
-// using YourProjectNamespace.Models; // Uncomment and adjust as needed
-
-public class SceneGame
+namespace Snake.Scene
 {
-    private Grid<int> grid;
-    private GameSnake snake;
-    private Apple apple;
-    private Random rng = new Random();
-
-    public SceneGame()
+    public class SceneGame : SceneBase
     {
-        grid = new Grid<int>(20, 20);
-        snake = new GameSnake(new Coordinates(10, 10));
-        apple = new Apple(grid, rng);
-    }
+        private readonly int screenWidth = 800;
+        private readonly int screenHeight = 600;
+        private readonly int columns = 20;
+        private readonly int rows = 15;
+        private readonly int cellSize;
+        private readonly int offsetX;
+        private readonly int offsetY;
+        private readonly Grid<int> grid;
+        private readonly GameSnake snake;
+        private readonly Apple apple;
+        private readonly Random rng = new();
+        private float timer = 0f;
+        private float moveDelay = 0.15f;
+        private int score = 0;
+        private int applesEaten = 0;
 
-    public void Update()
-    {
-        // À compléter : gestion des entrées clavier pour changer la direction du serpent
-
-        snake.Move();
-
-        // Si le serpent mange la pomme
-        if (snake.Body[0].Column == apple.Position.Column && snake.Body[0].Row == apple.Position.Row)
+        public SceneGame()
         {
-            snake.Grow();
-            apple.Respawn(grid, rng);
-        }
+            cellSize = screenWidth / columns; // 40
+            offsetX = (screenWidth - (columns * cellSize)) / 2;
+            offsetY = (screenHeight - (rows * cellSize)) / 2;
 
-        // Collision avec soi-même ou les murs
-        if (snake.IsCollidingWithSelf() ||
-            snake.Body[0].Column < 0 || snake.Body[0].Column >= grid.Columns ||
-            snake.Body[0].Row < 0 || snake.Body[0].Row >= grid.Rows)
-        {
-            // Game Over : reset the game
+            grid = new Grid<int>(columns, rows);
             snake = new GameSnake(new Coordinates(10, 10));
-            apple.Respawn(grid, rng);
+            apple = new Apple(grid, rng);
         }
-    }
 
-    public void Draw()
-    {
-        // Draw grid
-        for (int row = 0; row < grid.Rows; row++)
+        public override void Update()
         {
-            for (int col = 0; col < grid.Columns; col++)
+            timer += GetFrameTime();
+            if (timer >= moveDelay)
             {
-                DrawRectangle(col * 20, row * 20, 20, 20, Color.DarkGray);
+                timer = 0f;
+                snake.Move();
+
+                // Si le serpent mange la pomme
+                if (snake.Body[0].Column == apple.Position.Column && snake.Body[0].Row == apple.Position.Row)
+                {
+                    snake.Grow();
+                    apple.Respawn(grid, rng);
+                    score++;
+                    applesEaten++;
+                    // Augmente la vitesse toutes les 5 pommes
+                    if (applesEaten % 5 == 0)
+                        moveDelay *= 0.92f; // 8% plus rapide
+                }
+
+                // Collision avec soi-même ou les murs
+                if (snake.IsCollidingWithSelf() ||
+                    snake.Body[0].Column < 0 || snake.Body[0].Column >= grid.Columns ||
+                    snake.Body[0].Row < 0 || snake.Body[0].Row >= grid.Rows)
+                {
+                    IsFinished = true;
+                }
             }
         }
 
-        // Draw snake
-        foreach (var part in snake.Body)
+        public override void Draw()
         {
-            DrawRectangle(part.Column * 20, part.Row * 20, 20, 20, Color.Green);
-        }
+            ClearBackground(Color.DarkGray);
 
-        // Draw apple
-        DrawCircle(apple.Position.Column * 20 + 10, apple.Position.Row * 20 + 10, 10, Color.Red);
+            // Dessine la grille centrée
+            for (int row = 0; row < grid.Rows; row++)
+                for (int col = 0; col < grid.Columns; col++)
+                    DrawRectangle(offsetX + col * cellSize, offsetY + row * cellSize, cellSize, cellSize, Color.Gray);
+
+            apple.Draw(cellSize, offsetX, offsetY);
+            snake.Draw(cellSize, offsetX, offsetY);
+
+            DrawText($"Score : {score}", 10, 10, 24, Color.Yellow);
+        }
     }
 }

@@ -1,27 +1,36 @@
-﻿using Raylib_cs;
-using static Raylib_cs.Raylib;
+﻿using static Raylib_cs.Raylib;
+using static Raylib_cs.Color;
 
+namespace SnakeGame
+{
 
 public class Game
 {
-    private Grid<int> grid;
+    private readonly Grid<int> grid;
     public GameSnake snake; 
-    private Apple apple;
-    private Random rng = new Random();
-    private int cellSize = 30  ;
+    private readonly Apple apple;
+    private readonly Random rng = new();
+    private readonly int cellSize = 40; // 40
     private float timer = 0f;
     private float moveDelay = 0.15f;
-    private int score = 0; // Ajout d'un score
+    private int score = 0;
+    private int applesEaten = 0;
     public int Score => score;
-    public int columns; // 20
-    public int rows;    // 15
+    public int columns;
+    public int rows;
     public bool IsGameOver { get; set; } = false;
-    private SceneGameOver sceneGameOver;
+    private readonly SceneGameOver sceneGameOver;
 
     public Game(SceneGameOver sceneGameOverInstance)
     {
-        columns = 800 / cellSize;
-        rows = 600 / cellSize;
+        int screenWidth = 800;
+        int screenHeight = 600;
+        cellSize = screenWidth / 40; // 40
+        // Offset pour centrer la grille à l'écran
+        int offsetX = (screenWidth - (columns * cellSize)) / 2;
+        int offsetY = (screenHeight - (rows * cellSize)) / 2;
+        columns = 40;
+        rows = 30;
         grid = new Grid<int>(columns, rows);
         snake = new GameSnake(new Coordinates(10, 10));
         apple = new Apple(grid, rng);
@@ -32,7 +41,7 @@ public class Game
     {
         if (IsGameOver)
         {
-            sceneGameOver.Update(score);
+            sceneGameOver.Update();
             if (sceneGameOver.RestartRequested)
             {
                 Restart();
@@ -43,7 +52,7 @@ public class Game
 
         HandleInput();
 
-        timer += Raylib.GetFrameTime();
+        timer += GetFrameTime();
         if (timer >= moveDelay)
         {
             timer = 0f;
@@ -54,8 +63,8 @@ public class Game
             );
 
             // Collision mur
-            if (nextHead.Column < 0 || nextHead.Column >= grid.Columns ||
-                nextHead.Row < 0 || nextHead.Row >= grid.Rows)
+            if (nextHead.Column < 0 || nextHead.Column >= columns ||
+                nextHead.Row < 0 || nextHead.Row >= rows)
             {
                 IsGameOver = true;
                 return;
@@ -74,6 +83,9 @@ public class Game
                 snake.Body.Insert(0, nextHead);
                 apple.Respawn(grid, rng);
                 score++;
+                applesEaten++;
+                if (applesEaten % 2 == 0)
+                    moveDelay *= 0.92f; // accélère de 8% toutes les 2 pommes
                 return;
             }
 
@@ -85,33 +97,29 @@ public class Game
 
     private void HandleInput()
     {
-        // Utilisez W, A, S, D pour la compatibilité QWERTY/AZERTY
-        if (IsKeyPressed(KeyboardKey.W) && snake.Direction != Coordinates.down)
-            snake.Direction = Coordinates.up;
-        else if (IsKeyPressed(KeyboardKey.S) && snake.Direction != Coordinates.up)
-            snake.Direction = Coordinates.down;
-        else if (IsKeyPressed(KeyboardKey.A) && snake.Direction != Coordinates.right)
-            snake.Direction = Coordinates.left;
-        else if (IsKeyPressed(KeyboardKey.D) && snake.Direction != Coordinates.left)
-            snake.Direction = Coordinates.right;
+        // Utilisation du module Input.cs pour gérer les entrées
+        var direction = Input.GetDirection(snake.Direction);
+        if (direction != Coordinates.zero && direction != -snake.Direction)
+        {
+            snake.Direction = direction;
+        }
     }
 
     public void Draw()
     {
         if (IsGameOver)
         {
-            sceneGameOver.Draw(score);
+            sceneGameOver.Draw();
             return;
         }
 
-        Raylib.ClearBackground(Color.DarkGray);
-
+        ClearBackground(DarkGray);
        
         apple.Draw(cellSize);
         snake.Draw(cellSize);
 
         // Afficher le score
-        Raylib.DrawText($"Score : {score}", 10, 10, 24, Color.Yellow);
+        DrawText($"Score : {score}", 10, 10, 24, Yellow);
     
     }
 
@@ -120,77 +128,74 @@ public class Game
         snake = new GameSnake(new Coordinates(columns / 2, rows / 2));
         apple.Respawn(grid, rng);
         score = 0;
+        applesEaten = 0; // Réinitialiser le compteur de pommes mangées
         IsGameOver = false;
     }
 }
 
 enum Scene { Game, GameOver, Start }
 
+public class SceneGame : SceneBase
+{
+    public GameSnake Snake => game.snake;
+    public int Score => game.Score;
+    private readonly Game game;
+
+    public SceneGame()
+    {
+        game = new Game(new SceneGameOver(new GameSnake(new Coordinates(10, 10)), 0, GetFontDefault(), White));
+    }
+
+    public override void Update()
+    {
+        game.Update();
+        if (game.IsGameOver)
+            IsFinished = true;
+    }
+
+    public override void Draw()
+    {
+        game.Draw();
+    }
+}
 class Program
 {
     static void Main()
     {
         int screenWidth = 800;
         int screenHeight = 600;
+        int columns = 40; // Choisis un diviseur de 800
+        int rows = 30;    // Choisis un diviseur de 600
+        int cellSize = screenWidth / columns; // 40
+        int cellHeight = screenHeight / rows; // 40
+        
         InitWindow(screenWidth, screenHeight, "Snake");
-        SceneStart startScene = new SceneStart();
-        // Créez d'abord un serpent temporaire pour initialiser SceneGameOver
-        GameSnake tempSnake = new GameSnake(new Coordinates(10, 10));
-        SceneGameOver gameOverScene = new SceneGameOver(tempSnake, GetFontDefault(), Color.White);
-        Game game = new Game(gameOverScene);
-        // Mettez à jour le serpent de gameOverScene pour qu'il corresponde à celui du jeu
-        gameOverScene.snake = game.snake;
-        Scene currentScene = Scene.Start;
+        SetTargetFPS(60);
+
+        SceneBase currentScene = new SceneStart();
 
         while (!WindowShouldClose())
         {
-            switch (currentScene)
-            {
-                case Scene.GameOver:
-                    gameOverScene.Update(game.Score);
-                    if (gameOverScene.RestartRequested)
-                    {
-                        game.Restart();
-                        gameOverScene.Reset();
-                        currentScene = Scene.Game;
-                    }
-                    break;
-                case Scene.Start:
-                    startScene.Update();
-                    if (startScene.GameStarted)
-                        currentScene = Scene.Game;
-                    break;
-                case Scene.Game:
-                    game.Update();
+            currentScene.Update();
 
-                    // Vérifie si le serpent touche les bords de l'écran ou se mord lui-même
-                    if (game.snake.Body[0].Column < 0 || game.snake.Body[0].Column >= game.columns ||
-                        game.snake.Body[0].Row < 0 || game.snake.Body[0].Row >= game.rows ||
-                        game.snake.Body.Skip(1).Any(part => part.Column == game.snake.Body[0].Column && part.Row == game.snake.Body[0].Row))
-                    {
-                        game.IsGameOver = true;
-                        currentScene = Scene.GameOver;
-                    }
-                    break;
+            // Transition de scène
+            if (currentScene.IsFinished)
+            {
+                if (currentScene is SceneStart)
+                    currentScene = new SceneGame();
+                else if (currentScene is SceneGame sceneGame)
+                    currentScene = new SceneGameOver(sceneGame.Snake, sceneGame.Score, GetFontDefault(), White);
+                else if (currentScene is SceneGameOver)
+                    currentScene = new SceneGame(); // On relance directement le jeu
             }
 
             BeginDrawing();
-            switch (currentScene)
-            {
-                case Scene.GameOver:
-                    gameOverScene.Draw(game.Score);
-                    break;
-                case Scene.Start:
-                    startScene.Draw();
-                    break;
-                case Scene.Game:
-                    game.Draw();
-                    break;
-            }
+            currentScene.Draw();
             EndDrawing();
         }
 
         CloseWindow();
     }
+}
 }
 

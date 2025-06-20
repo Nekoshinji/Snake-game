@@ -1,11 +1,9 @@
-namespace Snake.Scene
+public abstract class SceneBase
 {
-    public interface IScene
-    {
-        void Update();
-        void Draw();
-        void OnEnter();
-        void OnExit();
-    }
+    public bool IsFinished { get; protected set; } = false;
+    public virtual void OnEnter() { }
+    public virtual void OnExit() { }
+    public abstract void Update();
+    public abstract void Draw();
 }
    

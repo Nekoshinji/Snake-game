@@ -1,31 +1,20 @@
 using Raylib_cs;
-using System.Numerics;
 using static Raylib_cs.Raylib;
 
-public class Input 
+public static class Input
 {
-    public static bool IsKeyPressed(KeyboardKey key)
+    public static Coordinates GetDirection(Coordinates currentDirection)
     {
-        return Raylib.IsKeyPressed(key);
-    }
-
-    public static bool IsKeyDown(KeyboardKey key)
-    {
-        return Raylib.IsKeyDown(key);
-    }
-
-    public static bool IsKeyReleased(KeyboardKey key)
-    {
-        return Raylib.IsKeyReleased(key);
-    }
-
-    public static bool IsMouseButtonPressed(MouseButton button)
-    {
-        return Raylib.IsMouseButtonPressed(button);
-    }
-
-    public static Vector2 GetMousePosition()
-    {
-        return Raylib.GetMousePosition();
+        // Empêche le demi-tour direct
+        if ((IsKeyPressed(KeyboardKey.W) || IsKeyPressed(KeyboardKey.Up)) && currentDirection != Coordinates.down)
+            return Coordinates.up;
+        else if ((IsKeyPressed(KeyboardKey.S) || IsKeyPressed(KeyboardKey.Down)) && currentDirection != Coordinates.up)
+            return Coordinates.down;
+        else if ((IsKeyPressed(KeyboardKey.A) || IsKeyPressed(KeyboardKey.Left)) && currentDirection != Coordinates.right)
+            return Coordinates.left;
+        else if ((IsKeyPressed(KeyboardKey.D) || IsKeyPressed(KeyboardKey.Right)) && currentDirection != Coordinates.left)
+            return Coordinates.right;
+        // Pas de changement
+        return currentDirection;
     }
 }

@@ -1,6 +1,3 @@
-using Raylib_cs;
-using static Raylib_cs.Raylib;
-
 public class Grid<T>
 {
     private int columns;

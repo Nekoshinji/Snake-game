@@ -19,7 +19,7 @@ public class Timer
         elapsedTime += deltaTime;
         if (elapsedTime > duration)
         {
-            elapsedTime = duration; // Cap the elapsed time to the duration
+            elapsedTime = duration;
         }
     }
 

@@ -7,8 +7,8 @@ namespace Snake.Scene
     {
         private readonly int screenWidth = 800;
         private readonly int screenHeight = 600;
-        private readonly int columns = 20;
-        private readonly int rows = 15;
+        private readonly int columns = 25;
+        private readonly int rows = 20;
         private readonly int cellSize;
         private readonly int offsetX;
         private readonly int offsetY;
@@ -23,7 +23,7 @@ namespace Snake.Scene
 
         public SceneGame()
         {
-            cellSize = screenWidth / columns; // 40
+            cellSize = screenWidth / columns;
             offsetX = (screenWidth - (columns * cellSize)) / 2;
             offsetY = (screenHeight - (rows * cellSize)) / 2;
 

@@ -10,7 +10,7 @@ public class Game
     public GameSnake snake; 
     private readonly Apple apple;
     private readonly Random rng = new();
-    private readonly int cellSize = 25;
+    private readonly int cellSize = 40;
     private float timer = 0f;
     private float moveDelay = 0.15f;
     private int score = 0;
@@ -25,12 +25,12 @@ public class Game
     {
         int screenWidth = 800;
         int screenHeight = 600;
-        cellSize = screenWidth / 25;
+        cellSize = screenWidth / 30;
         // Offset pour centrer la grille à l'écran
         int offsetX = (screenWidth - (columns * cellSize)) / 2;
         int offsetY = (screenHeight - (rows * cellSize)) / 2;
-        columns = 25;
-        rows = 20;
+        columns = 31;
+        rows = 23;
         grid = new Grid<int>(columns, rows);
         snake = new GameSnake(new Coordinates(10, 10));
         apple = new Apple(grid, rng);
@@ -164,10 +164,10 @@ class Program
     {
         int screenWidth = 800;
         int screenHeight = 600;
-        int columns = 25;
-        int rows = 20;
+        int columns = 40;
+        int rows = 30;
         int cellSize = screenWidth / columns;
-        int cellHeight = screenHeight / rows;
+            int cellHeight = screenHeight / rows;
         
         InitWindow(screenWidth, screenHeight, "Snake");
         SetTargetFPS(60);
@@ -186,7 +186,7 @@ class Program
                 else if (currentScene is SceneGame sceneGame)
                     currentScene = new SceneGameOver(sceneGame.Snake, sceneGame.Score, GetFontDefault(), White);
                 else if (currentScene is SceneGameOver)
-                    currentScene = new SceneGame();
+                    currentScene = new SceneGame(); // On relance directement le jeu
             }
 
             BeginDrawing();

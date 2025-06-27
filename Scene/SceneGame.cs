@@ -7,8 +7,8 @@ namespace Snake.Scene
     {
         private readonly int screenWidth = 800;
         private readonly int screenHeight = 600;
-        private readonly int columns = 25;
-        private readonly int rows = 20;
+        private readonly int columns = 31;
+        private readonly int rows = 23;
         private readonly int cellSize;
         private readonly int offsetX;
         private readonly int offsetY;
@@ -20,6 +20,8 @@ namespace Snake.Scene
         private float moveDelay = 0.15f;
         private int score = 0;
         private int applesEaten = 0;
+
+        public int carre = 0;
 
         public SceneGame()
         {
